@@ -2,19 +2,19 @@
 #include <cmath>
 
 int main() {
-    
+    // Задание 1: начальная точка
     double x0 = 0.0;
-    if (!(std::cin >> x0)) {
-        return 0;
+
+    double x_end = 4.0;
+    double step = (x_end - x0) / 9
+
+    for (int i = 1; i < 10; i++) {
+        double x = x0 + i * step;
+        double fx = sin(x) / x;
+        std::cout << fx;
+        if (i < 9) std::cout << " ";
     }
-    
-    // Задание 2: сумма чисел Фибоначчи.
-    // Ввод: MAX — ограничение на сумму.
-    long long max_value = 0;
-    if (!(std::cin >> max_value)) {
-        return 0;
-    }
-    //hdfgdfdghjjtdf
-    // TODO: вычислите N и S (S <= MAX) и выведите результаты.
-    return 0;
+
+
+
 }
