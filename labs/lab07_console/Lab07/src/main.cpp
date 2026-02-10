@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cmath>
-#include <cstdio>
 
 int main() {
     // Задание 1: начальная точка
