@@ -44,7 +44,7 @@ int main() {
     double month_stavka = stavka / 12 / 100;
     double total = 0;
 
-    for (int i = 0; i <= srok; i++) {
+    for (int i = 1; i <= srok; i++) {
         double procent = dolg * month_stavka;
         double platej = month_dolg + procent;
         total += procent;
