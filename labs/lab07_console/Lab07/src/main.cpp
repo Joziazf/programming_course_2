@@ -33,4 +33,24 @@ int main() {
     }
     std::cout << N << " " << S;
     std::cout << "\n";
+
+    // Задание 3: сумма, срок, процентная ставка
+    double summa = 150000;
+    int srok = 12;
+    double stavka = 15;
+
+    double dolg = summa;
+    double month_dolg = summa / srok;
+    double month_stavka = stavka / 12 / 100;
+    double total = 0;
+
+    for (int i = 0; i <= srok; i++) {
+        double procent = dolg * month_stavka;
+        double platej = month_dolg + procent;
+        total += procent;
+        printf("%d\t%.2f\t%.2f\t\t%.2f\n", i, dolg, procent, platej);
+
+        dolg -= month_dolg;
+    }
+    printf("%.2f", total);
 }
