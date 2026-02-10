@@ -13,8 +13,12 @@ Release/
 **/Debug/
 **/Release/
 
+# CLion
+.idea
+cmake-build-*/
+CMakeLists.txt
+
 # Other
 out/
 build/
 .vscode
-.idea
