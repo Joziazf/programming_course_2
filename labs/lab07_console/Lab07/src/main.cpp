@@ -3,10 +3,15 @@
 
 int main() {
     // Задание 1: начальная точка
-    double x0 = 0;
+    double x0 = 0.1;
+
+    // if (x0 <= 0 || x0 > 4) {
+    //     return 0;
+    // }
 
     double x_end = 4.0;
     double step = (x_end - x0) / 10.0;
+
 
     for (int i = 1; i <= 10; i++) {
         double x = x0 + i * step;
@@ -37,7 +42,7 @@ int main() {
     // Задание 3: сумма, срок, процентная ставка
     double summa = 150000;
     int srok = 12;
-    double stavka = 15;
+    double stavka = 14;
 
     double dolg = summa;
     double month_dolg = summa / srok;
