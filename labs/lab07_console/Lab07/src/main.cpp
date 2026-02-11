@@ -5,9 +5,9 @@ int main() {
     // Задание 1: начальная точка
     double x0 = 0.1;
 
-    // if (x0 <= 0 || x0 > 4) {
-    //     return 0;
-    // }
+    if (x0 <= 0 || x0 > 4) {
+        return 0;
+    }
 
     double x_end = 4.0;
     double step = (x_end - x0) / 10.0;
@@ -19,6 +19,7 @@ int main() {
         std::cout << fx;
         if (i < 10) std::cout << " ";
     }
+
     std::cout << "\n";
 
     // Задание 2: значение MAX
