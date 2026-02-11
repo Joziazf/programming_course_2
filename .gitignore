@@ -22,3 +22,4 @@ CMakeLists.txt
 out/
 build/
 .vscode
+cpp-course.sln
