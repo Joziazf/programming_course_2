@@ -170,7 +170,7 @@ struct Node {
     Node* prev;
 };
 
-void ex4() {
+int main() {
     Node* head = NULL;
     Node* tail = NULL;
 
@@ -196,9 +196,5 @@ void ex4() {
         cout << current->id << " ";
         current = current->next;
     }
-}
-
-int main() {
-    ex4();
     return 0;
 }
