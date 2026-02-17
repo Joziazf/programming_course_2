@@ -6,6 +6,13 @@ using namespace std;
 //     int a, b, c, d;
 //     int *x = &a, *y = &b, *z = &c;
 //
+//     либо без доп переменных
+//
+//     int *x, *y, *z, d;
+//     x = new int;
+//     y = new int;
+//     z = new int;
+//
 //     cout << "3 number, please" << endl;
 //     cin >> *x >> *y >> *z;
 //
