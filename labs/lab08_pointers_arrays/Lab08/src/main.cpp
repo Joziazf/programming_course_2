@@ -39,15 +39,127 @@ using namespace std;
 //     return 0;
 // }
 
+//--------------------------------------------------------------------------------------------------------------------\\
+
 //ex2 func
-void DoubleVal(int &a, int *b) { //функция для удвоения значений
-    a *= 2;
-    *b *= 2;
-}
+// void DoubleVal(int &a, int *b) { //функция для удвоения значений
+//     a *= 2;
+//     *b *= 2;
+// }
+// int main() {
+//     int x = 10, y = 15;
+//     cout << "X before: " << x << ", y before: " << y << endl;
+//     DoubleVal(x, &y);
+//     cout << "X after " << x << ", Y after: " << y << endl;
+//     return 0;
+// }
+
+//--------------------------------------------------------------------------------------------------------------------\\
+
+//ex3
+#define N 10 //размер массива
+
 int main() {
-    int x = 10, y = 15;
-    cout << "X before: " << x << ", y before: " << y << endl;
-    DoubleVal(x, &y);
-    cout << "X after " << x << ", Y after: " << y << endl;
+
+    //Статический, индексный ->
+    int s1[N];
+    for (int i = 0; i < N; i++) {
+        s1[i] = i * i;
+    }
+
+    //Вывод
+    for (int i = 0; i < N; i++) {
+        cout << s1[i] << " ";
+    }
+    cout << "<- static index" << endl;
+
+    //Статический, через указатель ->
+    int s2[N];
+    for (int i = 0; i < N; i++) {
+        *(s2 + i) = i * i;
+    }
+
+    //Вывод
+    for (int i = 0; i < N; i++) {
+        cout << *(s2 + i) << " ";
+    }
+    cout << "<- Static ykaz" << endl;
+
+    //Динамический, индексный ->
+    int *d1 = new int[N];
+    for (int i = 0; i < N; i++) {
+        d1[i] = i * i;
+    }
+
+    //Вывод
+    for (int i = 0; i < N; i++) {
+        cout << d1[i] << " ";
+    }
+
+    cout << "<- Dynamic index" << endl;
+    delete[] d1;
+
+    //Динамический, через указатель ->
+    int *d2 = new int[N];
+    for (int i = 0; i < N; i++) {
+        *(d2 + i) = i * i;
+    }
+
+    //Вывод
+    for (int i = 0; i < N; i++) {
+        cout << *(d2 + i) << " ";
+    }
+
+    cout << "<- Dynamic ykaz" << endl;
+    delete[] d2;
+
+    cout << endl;
+    //Объединение двух массивов
+
+    const int size1 = 6;
+    const int size2 = 6;
+
+    //Исходные массивы
+    int A[size1] = {1, 3, 5, 7, 9, 11};
+    int B[size2] = {2, 4, 6, 8, 10, 12};
+
+    //Итоговый массив
+    int C[size1 + size2];
+
+    //Индексы массивов
+    int i = 0, j = 0, k = 0;
+
+    while (i < size1 && j < size2) {
+        if (A[i] < B[j]) {
+            C[k] = A[i];
+            i++;
+        } else {
+            C[k] = B[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < size1) {
+        C[k] = A[i];
+        i++;
+        k++;
+    }
+
+    while (j < size2) {
+        C[k] = B[j];
+        j++;
+        k++;
+    }
+
+    //Вывод
+    for (int x = 0; x < size1 + size2; x++) {
+        cout << C[x] << " ";
+    }
+
     return 0;
 }
+
+//--------------------------------------------------------------------------------------------------------------------\\
+
+//ex4
