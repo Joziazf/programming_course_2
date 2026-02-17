@@ -3,11 +3,14 @@ using namespace std;
 
 //ex2 correct
 // int main() {
+//
+//     статика
 //     int a, b, c, d;
 //     int *x = &a, *y = &b, *z = &c;
 //
 //     либо без доп переменных
 //
+//     динамика(требует delete)
 //     int *x, *y, *z, d;
 //     x = new int;
 //     y = new int;
@@ -164,37 +167,37 @@ using namespace std;
 //--------------------------------------------------------------------------------------------------------------------\\
 
 //ex4
-struct Node {
+struct Node { //пользовательский тип данных
     int id;
     Node* next;
     Node* prev;
 };
 
 int main() {
-    Node* head = NULL;
-    Node* tail = NULL;
+    Node* head = NULL; //начало списка
+    Node* tail = NULL; //конец списка
 
     for (int i = 0; i < 10; i++) {
-        Node* newItem = new Node;
+        Node* newItem = new Node; //создание нового элемента
         newItem->id = i;
-        newItem->next = NULL;
+        newItem->next = NULL; //после добавления элемента спереди него ничего нет -> next никуда не указывает
 
-        if (head == NULL) {
-            newItem->prev = NULL;
-            head = newItem;
-            tail = newItem;
+        if (head == NULL) { //если голова(head) пустая -> список пуст и новый элемент = первый элемент
+            newItem->prev = NULL; //перед первым нет никакого элемента
+            head = newItem; //новый элемент и первый
+            tail = newItem; //и последний
         }
-        else {
-            tail->next = newItem;
-            newItem->prev = tail;
-            tail = newItem;
+        else { //иначе если список не пуст
+            tail->next = newItem; //для текущего последнего объекта следующим элементом будет новый элемент
+            newItem->prev = tail; //для нового элемента предыдущим будет текущий последний элемент
+            tail = newItem; //в конце списка - новый элемент
         }
     }
 
-    Node* current = head;
-    while (current != NULL) {
-        cout << current->id << " ";
-        current = current->next;
+    Node* current = head; //указатель вначале списка
+    while (current != NULL) { //пока есть объекты
+        cout << current->id << " "; //выводим объект
+        current = current->next; //переводим указатель на следующий объект
     }
     return 0;
 }
