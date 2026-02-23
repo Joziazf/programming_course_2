@@ -42,7 +42,7 @@ void fourth_char() {
 
         // 1 вариант
         if (strlen(temp) > 10) {
-            temp[10] = '\n'; // просто обрежу строку (11 символ = '\n')
+            temp[10] = '\0'; // просто обрежу строку (11 символ = '\0')
         }
 
         // 2 вариант (не нравится мне)
@@ -59,8 +59,44 @@ void fourth_char() {
     cout << endl;
 }
 
+void fourth_string() {
+    int n = 0;
+
+    // такая же проверка ввода
+    do {
+        cin >> n;
+        if (n < 1 || n > 20) {
+            cout << "Invalid input. n -> [1; 20]" << endl;
+        }
+    } while (n < 1 || n > 20);
+
+    string words[20];
+    string temp;
+
+    for (int i = 0; i < n; i++) {
+        cin >> temp;
+
+        // 1 вариант
+        if (temp.length() > 10) {
+            temp = temp.substr(0, 10);
+        }
+
+        // 2 вариант
+        // if (temp.length() > 10) {
+        //     i--;
+        //     cout << "len > 10. Try again" << endl;
+        // }
+        words[i] = temp;
+    }
+
+    for (int i = 1; i < n; i += 2) {
+        cout << words[i] << endl;
+    }
+}
+
 int main() {
     first();
     fourth_char();
+    fourth_string();
     return 0;
 }
