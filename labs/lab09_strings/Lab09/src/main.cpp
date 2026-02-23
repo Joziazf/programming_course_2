@@ -14,7 +14,7 @@ void first() {
     cout << "3. сopy: " << strcpy(c_str_copy, c_str_1) << endl; // 3
 
     // string cpp
-    string cpp_str = "School";
+    string cpp_str = "Education";
 
     cout << "1. len: " << cpp_str.length() << endl; // 1
     cout << "2. append: " << cpp_str.append(" in TSU") << endl; // 2
