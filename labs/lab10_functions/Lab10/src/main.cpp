@@ -18,19 +18,28 @@ void raspack(int* mpack, int* arr) {
     int cur = 0;
 
     for (int i = 0; i <= 17; i++) {
-        int k = mpack[i]; // высчитываем кол-во этого элемента в исходном массиве
+        int k = mpack[i];
 
-        for (int j = 0; j < k; j++) { // записываем этот элемент k раз
+        for (int j = 0; j < k; j++) {
             arr[cur] = i;
             cur++;
         }
     }
 }
 
-int main() {
-    const int n = 1002;
+bool check(int* arr_main, int* arr_after_function, int n) {
+    for (int i = 0; i < n; i++) {
+        if (arr_main[i] != arr_after_function[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
-    int* orig_arr = new int[n]; // выделение памяти под массив
+int main() {
+    const int n = 10000;
+
+    int* orig_arr = new int[n];
 
     for (int i = 0; i < n; i++) {
         orig_arr[i] = (i * 18) / n;
@@ -52,6 +61,13 @@ int main() {
         cout << repack[i] << endl;
     }
 
+    if (check(orig_arr, repack, n)) {
+        cout << "True" << endl;
+    } else {
+        cout << "False" << endl;
+    }
+
     delete[] orig_arr;
     delete[] repack;
+    return 0;
 }
