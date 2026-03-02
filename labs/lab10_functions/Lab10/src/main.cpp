@@ -28,7 +28,7 @@ void raspack(int* mpack, int* arr) {
 }
 
 int main() {
-    const int n = 10000;
+    const int n = 1002;
 
     int* orig_arr = new int[n]; // выделение памяти под массив
 
