@@ -27,6 +27,7 @@ void raspack(int* mpack, int* arr) {
     }
 }
 
+
 bool check(int* arr_main, int* arr_after_function, int n) {
     for (int i = 0; i < n; i++) {
         if (arr_main[i] != arr_after_function[i]) {
