@@ -57,10 +57,6 @@ int main() {
 
     raspack(pack_arr, repack);
 
-    for (int i = 0; i < n; i++) {
-        cout << repack[i] << endl;
-    }
-
     if (check(orig_arr, repack, n)) {
         cout << "True" << endl;
     } else {
