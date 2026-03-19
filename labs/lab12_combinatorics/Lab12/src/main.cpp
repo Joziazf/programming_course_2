@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector> // умный, динамический и крутой массив, который сам управляет памятью
-#include <cmath>
 
 using namespace std;
 
