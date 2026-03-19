@@ -3,13 +3,13 @@
 
 using namespace std;
 
-void printBoard(const vector<vector<int>>& board, int k) {
+void printBoard(const vector<vector<int>>& board, int k) { // функция для двумерного массива
     for (int i = 0; i < k; ++i, cout << endl)
         for (int j = 0; j < k; ++j) cout << (board[i][j] ? "Ф " : ". ");
     cout << endl;
 }
 
-void printBoard(const vector<int>& queens, int k) {
+void printBoard(const vector<int>& queens, int k) { // функция для одномерного массива
     for (int i = 0; i < k; ++i, cout << endl)
         for (int j = 0; j < k; ++j) cout <<(queens[i] == j ? "Ф " : ". ");
     cout << endl;
@@ -60,7 +60,6 @@ void solutionCHUMA(vector<int>& queens, int r, int k, int& count) {
         }
     }
 }
-
 
 int main() {
     int k;
