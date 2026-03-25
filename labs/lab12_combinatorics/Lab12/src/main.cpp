@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector> // умный, динамический и крутой массив, который сам управляет памятью
+#include <chrono>
 
 using namespace std;
 
@@ -57,6 +58,7 @@ void solutionCHUMA(vector<int>& queens, int r, int k, int& count) {
         if (isSafeCHUMA(queens, r, c)) {
             queens[r] = c;
             solutionCHUMA(queens, r + 1, k, count);
+            queens[r] = 0;
         }
     }
 }
@@ -72,11 +74,18 @@ int main() {
     vector<vector<int>> board(k, vector<int>(k, 0));
     vector<int> queens(k, 0);
 
-    solutionLOB(board, 0, k, countLOB);
-
+    auto startCHUMA = chrono::high_resolution_clock::now();
     solutionCHUMA(queens, 0, k, countCHUMA);
+    auto endCHUMA = chrono::high_resolution_clock::now();
+    chrono::duration<double, milli> timeCHUMA = endCHUMA - startCHUMA;
 
-    cout << "LOB: " << countLOB << " CHUMA: " << countCHUMA << endl;
+    auto startLOB = chrono::high_resolution_clock::now();
+    solutionLOB(board, 0, k, countLOB);
+    auto endLOB = chrono::high_resolution_clock::now();
+    chrono::duration<double, milli> timeLOB = endLOB - startLOB;
 
+    cout << "CHUMA: " << countCHUMA << " | Time: " << timeCHUMA.count() << " ms" << endl;
+
+    cout << "LOB: " << countLOB << " | Time: " << timeLOB.count() << " ms" << endl;
     return 0;
 }
