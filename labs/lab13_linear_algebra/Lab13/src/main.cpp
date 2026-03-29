@@ -1,12 +1,3 @@
-// ввод x - кол-во уравнений, y - кол-во неизвестных (x y) --> 1 строка, считывать файл!!!!!!!!!
-// красивый ввод матрицы
-// x <= y, другие проверки, лобовой алгоритм решения, через ведущие(по области/по столбцу)
-// основной войд по приведению к ступенчатому, доп войды для решений(общее и единственное)
-// доп задания:
-// - реализация графика двух пересекающихся прямых с нахождением точки пересечения(единственное решение) на плюсах GUI
-// - трёхмерное пространство, нахождение точки пересечения плоскостей
-// - реализация графика трех прямых с нахождением площади образуемой фигуры
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -41,6 +32,12 @@ void printMatrix(double** matrix, int lines, int unk_p, ostream& out) {
     out << endl;
 }
 
+/*
+Элементарные преобразования:
+- Перестановка строк;
+- Умножение строки на число;
+- Прибавление кратной строки.
+*/
 void makeTriangleForm(double** matrix, int lines, int unk_p, int& rank) {
     rank = 0;
     int row = 0;
@@ -104,6 +101,72 @@ void solutionUniq(double** matrix, int lines, int unk_p, ostream& out) {
     delete[] copy;
 }
 
+void solutionFull(double** matrix, int lines, int unk_p, ostream& out) {
+    double** copy = new double*[lines];
+    for (int i = 0; i < lines; i++) {
+        copy[i] = new double[unk_p + 1];
+        for (int j = 0; j <= unk_p; j++) {
+            copy[i][j] = matrix[i][j];
+        }
+    }
+
+    int rank = 0;
+    makeTriangleForm(copy, lines, unk_p, rank);
+
+    for (int i = rank; i < lines; i++) {
+        if (fabs(copy[i][unk_p]) > EPSILON) {
+            out << "Inconsistent system -> no general solution" << endl;
+            for (int k = 0; k < lines; k++) delete[] copy[k];
+            delete[] copy;
+            return;
+        }
+    }
+
+    if (rank == unk_p) {
+        out << "No general solution, uniq" << endl;
+        for (int k = 0; k < lines; k++) delete[] copy[k];
+        delete[] copy;
+        return;
+    }
+
+    bool* isPivot = new bool[unk_p]();
+    int* pivotCol = new int[rank];
+    int r = 0;
+    for (int col = 0; col < unk_p && r < rank; col++) {
+        if (fabs(copy[r][col]) > EPSILON) {
+            isPivot[col] = true;
+            pivotCol[r] = col;
+            r++;
+        }
+    }
+
+    bool first = true;
+    for (int j = 0; j < unk_p; j++) {
+        if (!isPivot[j]) {
+            if (first) { out << "Free variants: "; first = false; } else out << ", ";
+            out << "x" << j + 1;
+        }
+    }
+    out << endl;
+
+    double* solution = new double[unk_p]();
+    for (int i = 0; i < rank; i++) {
+        solution[pivotCol[i]] = copy[i][unk_p];
+    }
+
+    for (int j = 0; j < unk_p; j++) {
+        if (j > 0) out << "; ";
+        out << "x" << j + 1 << "=" << fixed << setprecision(0) << solution[j];
+    }
+    out << endl;
+
+    delete[] isPivot;
+    delete[] pivotCol;
+    delete[] solution;
+    for (int k = 0; k < lines; k++) delete[] copy[k];
+    delete[] copy;
+}
+
 int main() {
     ifstream fin("tests.txt");
     if (!fin.is_open()) {
@@ -154,12 +217,26 @@ int main() {
     int rank = 0;
     makeTriangleForm(matrix, lines, unk_p, rank);
 
-    cout << "------------------------" << endl;
+    cout << "------------------------------------------------" << endl;
+    fout << "------------------------------------------------" << endl;
+    cout << endl;
+    fout << endl;
+
     printMatrix(matrix, lines, unk_p, cout);
     printMatrix(matrix, lines, unk_p, fout);
 
+    cout << "------------------------------------------------ > uniq" << endl;
+    fout << "------------------------------------------------ > uniq" << endl;
     solutionUniq(matrix, lines, unk_p, cout);
     solutionUniq(matrix, lines, unk_p, fout);
+
+    cout << endl;
+    fout << endl;
+
+    cout << "------------------------------------------------ > full" << endl;
+    fout << "------------------------------------------------ > full" << endl;
+    solutionFull(matrix, lines, unk_p, cout);
+    solutionFull(matrix, lines, unk_p, fout);
 
     fout.close();
     cleanMatrix(matrix, lines);
