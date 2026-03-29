@@ -69,22 +69,36 @@ void makeTriangleForm(double** matrix, int lines, int unk_p, int& rank) {
 }
 
 int main() {
-    int lines = 3;
-    int unk_p = 4;
+    ifstream fin("tests.txt");
+    if (!fin.is_open()) {
+        cout << "Error open file" << endl;
+        return 1;
+    }
+
+    int lines, unk_p;
+
+    fin >> lines >> unk_p;
+
+    if (fin.fail() || lines <= 0 || unk_p <= 0) {
+        cout << "Invalid data (M/N)" << endl;
+        return 1;
+    }
     double** matrix = doMatrix(lines, unk_p);
 
-    matrix[0][0] =  2; matrix[0][1] =  1; matrix[0][2] = -1; matrix[0][3] =   8;
+    for (int i = 0; i < lines; i++) {
+        for (int j = 0; j <= unk_p; j++) {
+            fin >> matrix[i][j];
+        }
+    }
 
-    matrix[1][0] = -3; matrix[1][1] = -1; matrix[1][2] =  2; matrix[1][3] = -11;
-
-    matrix[2][0] = -2; matrix[2][1] =  1; matrix[2][2] =  2; matrix[2][3] =  -3;
+    fin.close();
 
     printMatrix(matrix, lines, unk_p);
 
     int rank = 0;
     makeTriangleForm(matrix, lines, unk_p, rank);
 
-    cout << "---------------------" << endl;
+    cout << "------------------------" << endl;
     printMatrix(matrix, lines, unk_p);
 
     cleanMatrix(matrix, lines);
