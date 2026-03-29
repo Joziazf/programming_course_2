@@ -31,15 +31,16 @@ void cleanMatrix(double** matrix, int lines) {
     delete[] matrix;
 }
 
-void printMatrix(double** matrix, int lines, int unk_p) {
+void printMatrix(double** matrix, int lines, int unk_p, ostream& out) {
     for (int i = 0; i < lines; i++) {
         for (int j = 0; j <= unk_p; j++) {
-            cout << fixed << setw(8) << setprecision(3) << matrix[i][j] << " ";
+            out << fixed << setw(8) << setprecision(3) << matrix[i][j] << " ";
         }
-        cout << endl;
+        out << endl;
     }
-    cout << endl;
+    out << endl;
 }
+
 void makeTriangleForm(double** matrix, int lines, int unk_p, int& rank) {
     rank = 0;
     int row = 0;
@@ -105,13 +106,22 @@ int main() {
 
     fin.close();
 
-    printMatrix(matrix, lines, unk_p);
+    ofstream fout("output.txt");
+    if (!fout.is_open()) {
+        cout << "Error opening output file" << endl;
+        cleanMatrix(matrix, lines);
+        return 1;
+    }
+
+    printMatrix(matrix, lines, unk_p, cout);
+    printMatrix(matrix, lines, unk_p, fout);
 
     int rank = 0;
     makeTriangleForm(matrix, lines, unk_p, rank);
 
     cout << "------------------------" << endl;
-    printMatrix(matrix, lines, unk_p);
+    printMatrix(matrix, lines, unk_p, cout);
+    printMatrix(matrix, lines, unk_p, fout);
 
     cleanMatrix(matrix, lines);
     return 0;
