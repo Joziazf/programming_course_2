@@ -79,16 +79,28 @@ int main() {
 
     fin >> lines >> unk_p;
 
-    if (fin.fail() || lines <= 0 || unk_p <= 0) {
-        cout << "Invalid data (M/N)" << endl;
+    if (fin.fail()) {
+        cout << "Error reading M and N" << endl;
         return 1;
     }
+
+    if (lines <= 0 || unk_p <= 0) {
+        cout << "Error incorrect M and N (>0)" << endl;
+        return 1;
+    }
+
     double** matrix = doMatrix(lines, unk_p);
 
     for (int i = 0; i < lines; i++) {
         for (int j = 0; j <= unk_p; j++) {
             fin >> matrix[i][j];
         }
+    }
+
+    if (fin.fail()) {
+        cout << "Error missing data" << endl;
+        cleanMatrix(matrix, lines);
+        return 1;
     }
 
     fin.close();
