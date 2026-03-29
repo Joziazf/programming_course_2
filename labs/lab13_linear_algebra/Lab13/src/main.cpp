@@ -30,3 +30,63 @@ void cleanMatrix(double** matrix, int lines) {
     for (int i = 0; i < lines; i++) delete[] matrix[i];
     delete[] matrix;
 }
+
+void printMatrix(double** matrix, int lines, int unk_p) {
+    for (int i = 0; i < lines; i++) {
+        for (int j = 0; j <= unk_p; j++) {
+            cout << fixed << setw(8) << setprecision(3) << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+void makeTriangleForm(double** matrix, int lines, int unk_p, int& rank) {
+    rank = 0;
+    int row = 0;
+    for (int col = 0; col < unk_p && row < lines; col++) {
+        int pivot = row;
+        for (int i = row + 1; i < lines; i++) {
+            if (fabs(matrix[i][col]) > fabs(matrix[pivot][col]))  pivot = i;
+        }
+        if (fabs(matrix[pivot][col]) < EPSILON) continue;
+
+        swap(matrix[row], matrix[pivot]);
+
+        double val = matrix[row][col];
+        for (int j = 0; j <= unk_p; j++) matrix[row][j] /= val;
+
+        for (int i = 0; i < lines; i++) {
+            if (i != row) {
+                double factor = matrix[i][col];
+                for (int j = 0; j <= unk_p; j++) {
+                    matrix[i][j] -= matrix[row][j] * factor;
+                }
+            }
+        }
+        row++;
+        rank++;
+    }
+}
+
+int main() {
+    int lines = 3;
+    int unk_p = 4;
+    double** matrix = doMatrix(lines, unk_p);
+
+    matrix[0][0] =  2; matrix[0][1] =  1; matrix[0][2] = -1; matrix[0][3] =   8;
+
+    matrix[1][0] = -3; matrix[1][1] = -1; matrix[1][2] =  2; matrix[1][3] = -11;
+
+    matrix[2][0] = -2; matrix[2][1] =  1; matrix[2][2] =  2; matrix[2][3] =  -3;
+
+    printMatrix(matrix, lines, unk_p);
+
+    int rank = 0;
+    makeTriangleForm(matrix, lines, unk_p, rank);
+
+    cout << "---------------------" << endl;
+    printMatrix(matrix, lines, unk_p);
+
+    cleanMatrix(matrix, lines);
+    return 0;
+}
