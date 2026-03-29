@@ -69,6 +69,41 @@ void makeTriangleForm(double** matrix, int lines, int unk_p, int& rank) {
     }
 }
 
+void solutionUniq(double** matrix, int lines, int unk_p, ostream& out) {
+    double** copy = new double*[lines];
+    for (int i = 0; i < lines; i++) {
+        copy[i] = new double[unk_p + 1];
+        for (int j = 0; j <= unk_p; j++) {
+            copy[i][j] = matrix[i][j];
+        }
+    }
+
+    int rank = 0;
+    makeTriangleForm(copy, lines, unk_p, rank);
+
+    for (int i = rank; i < lines; i++) {
+        if (fabs(copy[i][unk_p]) > EPSILON) {
+            out << "Inconsistent system" << endl;
+            for (int k = 0; k < lines; k++) delete[] copy[k];
+            delete[] copy;
+            return;
+        }
+    }
+
+    if (rank != unk_p) {
+        out << "Infinite solutions, rank = " << rank << " < N = " << unk_p << endl;
+        for (int k = 0; k < lines; k++) delete[] copy[k];
+        delete[] copy;
+        return;
+    }
+
+    for (int i = 0; i < unk_p; i++) {
+        out << "x" << i + 1 << " = " << fixed << setprecision(3) << copy[i][unk_p] << endl;
+    }
+    for (int k = 0; k < lines; k++) delete[] copy[k];
+    delete[] copy;
+}
+
 int main() {
     ifstream fin("tests.txt");
     if (!fin.is_open()) {
@@ -123,6 +158,10 @@ int main() {
     printMatrix(matrix, lines, unk_p, cout);
     printMatrix(matrix, lines, unk_p, fout);
 
+    solutionUniq(matrix, lines, unk_p, cout);
+    solutionUniq(matrix, lines, unk_p, fout);
+
+    fout.close();
     cleanMatrix(matrix, lines);
     return 0;
 }
