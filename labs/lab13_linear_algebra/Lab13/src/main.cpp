@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdlib>
 
+
 using namespace std;
 
 const double EPSILON = 1e-9;
