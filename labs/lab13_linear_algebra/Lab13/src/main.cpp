@@ -2,7 +2,6 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
-#include <cstdlib>
 
 using namespace std;
 
@@ -206,23 +205,33 @@ void taskA(ostream& out) {
     ofstream script("lines.py");
     script << "import matplotlib.pyplot as plt\n"
            << "import numpy as np\n"
+           << "\n\n"
            << "x_c, y_c = " << x << ", " << y << "\n"
            << "x = np.linspace(x_c - 10, x_c + 10, 400)\n"
+           << "\n"
            << "plt.xlim(x_c - 10, x_c + 10)\n"
            << "plt.ylim(y_c - 10, y_c + 10)\n"
+           << "\n"
            << "if abs(" << b1 << ") > 1e-9:\n"
-           << "    plt.plot(x, (" << c1 << " - " << a1 << "*x) / " << b1
+           << "    plt.plot(x, (" << c1 << " - " << a1 << " * x) / " << b1
            << ", 'b-', label='" << a1 << "x + " << b1 << "y = " << c1 << "')\n"
            << "else:\n"
-           << "    plt.axvline(x=" << c1/a1 << ", color='b', label='x = " << c1/a1 << "')\n"
+           << "    plt.axvline(x=" << c1 / a1 << ", color='b', label='x = " << c1 / a1 << "')\n"
+           << "\n"
            << "if abs(" << b2 << ") > 1e-9:\n"
-           << "    plt.plot(x, (" << c2 << " - " << a2 << "*x) / " << b2
+           << "    plt.plot(x, (" << c2 << " - " << a2 << " * x) / " << b2
            << ", 'r-', label='" << a2 << "x + " << b2 << "y = " << c2 << "')\n"
            << "else:\n"
-           << "    plt.axvline(x=" << c2/a2 << ", color='r', label='x = " << c2/a2 << "')\n"
+           << "    plt.axvline(x=" << c2 / a2 << ", color='r', label='x = " << c2 / a2 << "')\n"
+           << "\n"
            << "plt.plot(x_c, y_c, 'go', markersize=8, label=f'({x_c:.3f}, {y_c:.3f})')\n"
-           << "plt.annotate(f'({x_c:.3f}, {y_c:.3f})', (x_c, y_c),"
-           << " textcoords='offset points', xytext=(8, 8))\n"
+           << "plt.annotate(\n"
+           << "    f'({x_c:.3f}, {y_c:.3f})',\n"
+           << "    (x_c, y_c),\n"
+           << "    textcoords='offset points',\n"
+           << "    xytext=(8, 8)\n"
+           << ")\n"
+           << "\n"
            << "plt.axhline(0, color='black', linewidth=0.5)\n"
            << "plt.axvline(0, color='black', linewidth=0.5)\n"
            << "plt.grid(True, alpha=0.3)\n"
@@ -230,6 +239,7 @@ void taskA(ostream& out) {
            << "plt.title('First task')\n"
            << "plt.tight_layout()\n"
            << "plt.show()\n";
+    script.close();
     script.close();
 
     system("venv/bin/python lines.py");
