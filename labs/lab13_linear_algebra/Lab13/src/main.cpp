@@ -167,78 +167,168 @@ void solutionFull(double** matrix, int lines, int unk_p, ostream& out) {
     delete[] copy;
 }
 
-int main() {
-    ifstream fin("tests.txt");
-    if (!fin.is_open()) {
-        cout << "Error open file" << endl;
-        return 1;
-    }
+//Допы
+void taskA(ostream& out) {
+    double a1, b1, c1, a2, b2, c2;
+    cout << "First line: ";
+    cin >> a1 >> b1 >> c1;
+    cout << "Second line: ";
+    cin >> a2 >> b2 >> c2;
 
-    int lines, unk_p;
-
-    fin >> lines >> unk_p;
-
-    if (fin.fail()) {
-        cout << "Error reading M and N" << endl;
-        return 1;
-    }
-
-    if (lines <= 0 || unk_p <= 0) {
-        cout << "Error incorrect M and N (>0)" << endl;
-        return 1;
-    }
-
-    double** matrix = doMatrix(lines, unk_p);
-
-    for (int i = 0; i < lines; i++) {
-        for (int j = 0; j <= unk_p; j++) {
-            fin >> matrix[i][j];
-        }
-    }
-
-    if (fin.fail()) {
-        cout << "Error missing data" << endl;
-        cleanMatrix(matrix, lines);
-        return 1;
-    }
-
-    fin.close();
-
-    ofstream fout("output.txt");
-    if (!fout.is_open()) {
-        cout << "Error opening output file" << endl;
-        cleanMatrix(matrix, lines);
-        return 1;
-    }
-
-    printMatrix(matrix, lines, unk_p, cout);
-    printMatrix(matrix, lines, unk_p, fout);
+    double** matrix = doMatrix(2, 2);
+    matrix[0][0] = a1; matrix[0][1] = b1; matrix[0][2] = c1;
+    matrix[1][0] = a2; matrix[1][1] = b2; matrix[1][2] = c2;
 
     int rank = 0;
-    makeTriangleForm(matrix, lines, unk_p, rank);
+    makeTriangleForm(matrix, 2, 2, rank);
 
-    cout << "------------------------------------------------" << endl;
-    fout << "------------------------------------------------" << endl;
-    cout << endl;
-    fout << endl;
+    bool isParallel = false;
+    for (int i = rank; i < 2; i++) {
+        if (fabs(matrix[i][2]) > EPSILON) isParallel = true;
+    }
 
-    printMatrix(matrix, lines, unk_p, cout);
-    printMatrix(matrix, lines, unk_p, fout);
+    if (isParallel) {
+        out << "Lines are parallel" << endl;
+        cleanMatrix(matrix, 2);
+        return;
+    }
 
-    cout << "------------------------------------------------ > uniq" << endl;
-    fout << "------------------------------------------------ > uniq" << endl;
-    solutionUniq(matrix, lines, unk_p, cout);
-    solutionUniq(matrix, lines, unk_p, fout);
+    if (rank < 2) {
+        out << "Same lines" << endl;
+        cleanMatrix(matrix, 2);
+        return;
+    }
 
-    cout << endl;
-    fout << endl;
+    double x = matrix[0][2];
+    double y = matrix[1][2];
+    out << "Solution: x -> " << x << "; y -> " << y << endl;
 
-    cout << "------------------------------------------------ > full" << endl;
-    fout << "------------------------------------------------ > full" << endl;
-    solutionFull(matrix, lines, unk_p, cout);
-    solutionFull(matrix, lines, unk_p, fout);
+    ofstream script("lines.py");
+    script << "import matplotlib.pyplot as plt\n"
+           << "import numpy as np\n"
+           << "x_c, y_c = " << x << ", " << y << "\n"
+           << "x = np.linspace(x_c - 10, x_c + 10, 400)\n"
+           << "plt.xlim(x_c - 10, x_c + 10)\n"
+           << "plt.ylim(y_c - 10, y_c + 10)\n"
+           << "if abs(" << b1 << ") > 1e-9:\n"
+           << "    plt.plot(x, (" << c1 << " - " << a1 << "*x) / " << b1
+           << ", 'b-', label='" << a1 << "x + " << b1 << "y = " << c1 << "')\n"
+           << "else:\n"
+           << "    plt.axvline(x=" << c1/a1 << ", color='b', label='x = " << c1/a1 << "')\n"
+           << "if abs(" << b2 << ") > 1e-9:\n"
+           << "    plt.plot(x, (" << c2 << " - " << a2 << "*x) / " << b2
+           << ", 'r-', label='" << a2 << "x + " << b2 << "y = " << c2 << "')\n"
+           << "else:\n"
+           << "    plt.axvline(x=" << c2/a2 << ", color='r', label='x = " << c2/a2 << "')\n"
+           << "plt.plot(x_c, y_c, 'go', markersize=8, label=f'({x_c:.3f}, {y_c:.3f})')\n"
+           << "plt.annotate(f'({x_c:.3f}, {y_c:.3f})', (x_c, y_c),"
+           << " textcoords='offset points', xytext=(8, 8))\n"
+           << "plt.axhline(0, color='black', linewidth=0.5)\n"
+           << "plt.axvline(0, color='black', linewidth=0.5)\n"
+           << "plt.grid(True, alpha=0.3)\n"
+           << "plt.legend()\n"
+           << "plt.title('First task')\n"
+           << "plt.tight_layout()\n"
+           << "plt.show()\n";
+    script.close();
 
-    fout.close();
-    cleanMatrix(matrix, lines);
+    system("venv/bin/python lines.py");
+
+    cleanMatrix(matrix, 2);
+}
+
+int main() {
+    int choice;
+    do {
+        cout << "Main menu" << endl;
+        cout << "1. Run main task" << endl;
+        cout << "2. Run additional task" << endl;
+        cout << "0. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            ifstream fin("tests.txt");
+            if (!fin.is_open()) {
+                cout << "Error open file" << endl;
+                continue;
+            }
+
+            int lines, unk_p;
+
+            fin >> lines >> unk_p;
+
+            if (fin.fail()) {
+                cout << "Error reading M and N" << endl;
+                continue;
+            }
+
+            if (lines <= 0 || unk_p <= 0) {
+                cout << "Error incorrect M and N (>0)" << endl;
+                continue;
+            }
+
+            double** matrix = doMatrix(lines, unk_p);
+
+            for (int i = 0; i < lines; i++) {
+                for (int j = 0; j <= unk_p; j++) {
+                    fin >> matrix[i][j];
+                }
+            }
+
+            if (fin.fail()) {
+                cout << "Error missing data" << endl;
+                cleanMatrix(matrix, lines);
+                continue;
+            }
+
+            fin.close();
+
+            ofstream fout("output.txt");
+            if (!fout.is_open()) {
+                cout << "Error opening output file" << endl;
+                cleanMatrix(matrix, lines);
+                continue;
+            }
+
+            printMatrix(matrix, lines, unk_p, cout);
+            printMatrix(matrix, lines, unk_p, fout);
+
+            int rank = 0;
+            makeTriangleForm(matrix, lines, unk_p, rank);
+
+            cout << "------------------------------------------------" << endl;
+            fout << "------------------------------------------------" << endl;
+            cout << endl;
+            fout << endl;
+
+            printMatrix(matrix, lines, unk_p, cout);
+            printMatrix(matrix, lines, unk_p, fout);
+
+            cout << "------------------------------------------------ > uniq" << endl;
+            fout << "------------------------------------------------ > uniq" << endl;
+            solutionUniq(matrix, lines, unk_p, cout);
+            solutionUniq(matrix, lines, unk_p, fout);
+
+            cout << endl;
+            fout << endl;
+
+            cout << "------------------------------------------------ > full" << endl;
+            fout << "------------------------------------------------ > full" << endl;
+            solutionFull(matrix, lines, unk_p, cout);
+            solutionFull(matrix, lines, unk_p, fout);
+
+            fout.close();
+            cleanMatrix(matrix, lines);
+
+        } else if (choice == 2) {
+            taskA(cout);
+
+        } else if (choice != 0) {
+            cout << "Invalid choice" << endl;
+
+        }
+    } while (choice != 0);
+
     return 0;
 }
