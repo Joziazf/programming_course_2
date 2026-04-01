@@ -33,37 +33,47 @@ void printMatrix(double** matrix, int lines, int unk_p, ostream& out) {
     out << endl;
 }
 
-bool Parser(const string& ex, double& a, double& b, double& c) {
-    a = 0; b = 0; c = 0;
+bool Parser(const string& ex, double coeffs[], int numVars) {
+    for (int i = 0; i <= numVars; i++) coeffs[i] = 0;
 
     regex termRe("([+-]?\\d*\\.?\\d*)([xyz]?)");
 
     size_t exPos = ex.find('=');
     if (exPos == string::npos) return false;
 
-    string left = ex.substr(0, exPos);
+    string left  = ex.substr(0, exPos);
     string right = ex.substr(exPos + 1);
 
-    c = stod(right);
+    string leftClean = "";
+    for (char c : left) if (c != ' ') leftClean += c;
 
-    auto it = sregex_iterator(left.begin(), left.end(), termRe);
+    coeffs[numVars] = stod(right);
+
+    char varNames[] = {'x', 'y', 'z'};
+
+    auto it = sregex_iterator(leftClean.begin(), leftClean.end(), termRe);
     for (; it != sregex_iterator(); ++it) {
         string numPart = (*it)[1].str();
         string varPart = (*it)[2].str();
 
         if (numPart.empty() && varPart.empty()) continue;
-
         if ((numPart == "+" || numPart == "-") && varPart.empty()) continue;
 
         double coeff;
-        if (numPart == "+" || numPart.empty()) coeff = 1.0;
+        if (numPart == "+" || numPart.empty()) coeff =  1.0;
         else if (numPart == "-") coeff = -1.0;
         else coeff = stod(numPart);
 
-        if (varPart == "x") a += coeff;
-        else if (varPart == "y") b += coeff;
-        else if (!varPart.empty()) return false;
-        else c -= coeff;
+        bool found = false;
+        for (int v = 0; v < numVars; v++) {
+            if (varPart == string(1, varNames[v])) {
+                coeffs[v] += coeff;
+                found = true;
+                break;
+            }
+        }
+        if (!found && !varPart.empty()) return false;
+        if (!found && varPart.empty()) coeffs[numVars] -= coeff;
     }
     return true;
 }
@@ -206,6 +216,11 @@ void solutionFull(double** matrix, int lines, int unk_p, ostream& out) {
 //Допы
 void taskA(ostream& out) {
     ifstream fin("test_graph_A.txt");
+    if (!fin.is_open()) {
+        cout << "Error open" << endl;
+        return;
+    }
+
     string line;
     getline(fin, line);
     fin.close();
@@ -214,9 +229,14 @@ void taskA(ostream& out) {
     string ex1 = line.substr(0, zap);
     string ex2 = line.substr(zap + 1);
 
-    double a1, b1, c1, a2, b2, c2;
-    Parser(ex1, a1, b1, c1);
-    Parser(ex2, a2, b2, c2);
+    double cof1[3], cof2[3];
+    if (!Parser(ex1, cof1, 2) || !Parser(ex2, cof2, 2)) {
+        cout << "Error parser" << endl;
+        return;
+    }
+
+    double a1=cof1[0], b1=cof1[1], c1=cof1[2];
+    double a2=cof2[0], b2=cof2[1], c2=cof2[2];
 
     double** matrix = doMatrix(2, 2);
     matrix[0][0] = a1; matrix[0][1] = b1; matrix[0][2] = c1;
@@ -284,7 +304,6 @@ void taskA(ostream& out) {
            << "plt.tight_layout()\n"
            << "plt.show()\n";
     script.close();
-    script.close();
 
     system("venv/bin/python lines.py");
 
@@ -292,7 +311,83 @@ void taskA(ostream& out) {
 }
 
 void taskB(ostream& out) {
+    ifstream fin("test_b.txt");
+    if (!fin.is_open()) {
+        cout << "Error open" << endl;
+        return;
+    }
 
+    string line;
+    getline(fin, line);
+    fin.close();
+
+    string exs[3];
+    size_t pos1 = line.find(',');
+    size_t pos2 = line.find(',', pos1 + 1);
+    exs[0] = line.substr(0, pos1);
+    exs[1] = line.substr(pos1 + 1, pos2 - pos1 - 1);
+    exs[2] = line.substr(pos2 + 1);
+
+    double** matrix = doMatrix(3, 3);
+    for (int i = 0; i < 3; i++) {
+        double coeffs[4];
+        if (!Parser(exs[i], coeffs, 3)) {
+            cout << "Error parser" << i+1 << endl;
+            cleanMatrix(matrix, 3);
+            return;
+        }
+        for (int j = 0; j <= 3; j++) matrix[i][j] = coeffs[j];
+    }
+
+    int rank = 0;
+    makeTriangleForm(matrix, 3, 3, rank);
+
+    bool isParallel = false;
+    for (int i = rank; i < 3; i++)
+        if (fabs(matrix[i][3]) > EPSILON) isParallel = true;
+
+    if (isParallel) {
+        out << "Inconsistent system" << endl;
+    } else if (rank < 3) {
+        bool* isPivot  = new bool[3]();
+        int*  pivotCol = new int[rank];
+        int r = 0;
+        for (int col = 0; col < 3 && r < rank; col++) {
+            if (fabs(matrix[r][col]) > EPSILON) {
+                isPivot[col]  = true;
+                pivotCol[r]   = col;
+                r++;
+            }
+        }
+
+        char varNames[] = {'x', 'y', 'z'};
+        bool first = true;
+        for (int j = 0; j < 3; j++) {
+            if (!isPivot[j]) {
+                if (!first) out << ", ";
+                out << varNames[j] << " is free";
+                first = false;
+            }
+        }
+        out << endl;
+
+        double sol[3] = {0, 0, 0};
+        for (int i = 0; i < rank; i++)
+            sol[pivotCol[i]] = matrix[i][3];
+
+        out << "x = " << fixed << setprecision(3) << sol[0] << ", "
+            << "y = " << fixed << setprecision(3) << sol[1] << ", "
+            << "z = " << fixed << setprecision(3) << sol[2] << endl;
+
+        delete[] isPivot;
+        delete[] pivotCol;
+    } else {
+        out << "Intersection point:" << endl;
+        out << "x = " << fixed << setprecision(3) << matrix[0][3] << endl;
+        out << "y = " << fixed << setprecision(3) << matrix[1][3] << endl;
+        out << "z = " << fixed << setprecision(3) << matrix[2][3] << endl;
+    }
+    cleanMatrix(matrix, 3);
 }
 
 int main() {
@@ -384,10 +479,13 @@ int main() {
         } else if (choice == 2) {
             taskA(cout);
 
+        } else if (choice == 3) {
+            taskB(cout);
+
         } else if (choice != 0) {
             cout << "Invalid choice" << endl;
-
         }
+
     } while (choice != 0);
 
     return 0;
