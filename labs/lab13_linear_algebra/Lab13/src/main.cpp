@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
+#include <regex>
+#include <string>
 
 using namespace std;
 
@@ -29,6 +31,41 @@ void printMatrix(double** matrix, int lines, int unk_p, ostream& out) {
         out << endl;
     }
     out << endl;
+}
+
+bool Parser(const string& ex, double& a, double& b, double& c) {
+    a = 0; b = 0; c = 0;
+
+    regex termRe("([+-]?\\d*\\.?\\d*)([xyz]?)");
+
+    size_t exPos = ex.find('=');
+    if (exPos == string::npos) return false;
+
+    string left = ex.substr(0, exPos);
+    string right = ex.substr(exPos + 1);
+
+    c = stod(right);
+
+    auto it = sregex_iterator(left.begin(), left.end(), termRe);
+    for (; it != sregex_iterator(); ++it) {
+        string numPart = (*it)[1].str();
+        string varPart = (*it)[2].str();
+
+        if (numPart.empty() && varPart.empty()) continue;
+
+        if ((numPart == "+" || numPart == "-") && varPart.empty()) continue;
+
+        double coeff;
+        if (numPart == "+" || numPart.empty()) coeff = 1.0;
+        else if (numPart == "-") coeff = -1.0;
+        else coeff = stod(numPart);
+
+        if (varPart == "x") a += coeff;
+        else if (varPart == "y") b += coeff;
+        else if (!varPart.empty()) return false;
+        else c -= coeff;
+    }
+    return true;
 }
 
 /*
@@ -168,11 +205,18 @@ void solutionFull(double** matrix, int lines, int unk_p, ostream& out) {
 
 //Допы
 void taskA(ostream& out) {
+    ifstream fin("test_graph_A.txt");
+    string line;
+    getline(fin, line);
+    fin.close();
+
+    size_t zap = line.find(',');
+    string ex1 = line.substr(0, zap);
+    string ex2 = line.substr(zap + 1);
+
     double a1, b1, c1, a2, b2, c2;
-    cout << "First line: ";
-    cin >> a1 >> b1 >> c1;
-    cout << "Second line: ";
-    cin >> a2 >> b2 >> c2;
+    Parser(ex1, a1, b1, c1);
+    Parser(ex2, a2, b2, c2);
 
     double** matrix = doMatrix(2, 2);
     matrix[0][0] = a1; matrix[0][1] = b1; matrix[0][2] = c1;
@@ -247,12 +291,18 @@ void taskA(ostream& out) {
     cleanMatrix(matrix, 2);
 }
 
+void taskB(ostream& out) {
+
+}
+
 int main() {
     int choice;
     do {
         cout << "Main menu" << endl;
         cout << "1. Run main task" << endl;
-        cout << "2. Run additional task" << endl;
+        cout << "2. Run additional A task" << endl;
+        cout << "3. Run additional B task" << endl;
+        cout << "4. Run additional C task" << endl;
         cout << "0. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
