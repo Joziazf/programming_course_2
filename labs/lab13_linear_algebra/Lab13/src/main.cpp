@@ -213,7 +213,7 @@ void solutionFull(double** matrix, int lines, int unk_p, ostream& out) {
     delete[] copy;
 }
 
-//Допы
+// Допы
 void taskA(ostream& out) {
     ifstream fin("test_graph_A.txt");
     if (!fin.is_open()) {
@@ -354,8 +354,8 @@ void taskB(ostream& out) {
         int r = 0;
         for (int col = 0; col < 3 && r < rank; col++) {
             if (fabs(matrix[r][col]) > EPSILON) {
-                isPivot[col]  = true;
-                pivotCol[r]   = col;
+                isPivot[col] = true;
+                pivotCol[r] = col;
                 r++;
             }
         }
@@ -388,6 +388,125 @@ void taskB(ostream& out) {
         out << "z = " << fixed << setprecision(3) << matrix[2][3] << endl;
     }
     cleanMatrix(matrix, 3);
+}
+
+void taskC(ostream& out) {
+    ifstream fin("test_graph_C.txt");
+    if (!fin.is_open()) {
+        cout << "Error open" << endl;
+        return;
+    }
+
+    string line;
+    getline(fin, line);
+    fin.close();
+
+    string exs[3];
+    size_t pos1 = line.find(',');
+    size_t pos2 = line.find(',', pos1 + 1);
+    exs[0] = line.substr(0, pos1);
+    exs[1] = line.substr(pos1 + 1, pos2 - pos1 - 1);
+    exs[2] = line.substr(pos2 + 1);
+
+    double coeffs[3][3];
+    for (int i = 0; i < 3; i++) {
+        if (!Parser(exs[i], coeffs[i], 2)) {
+            cout << "Error parser" << i+1 << endl;
+            return;
+        }
+    }
+
+    double prs[3][3];
+    int pairs[3][2] = {{0, 1}, {0, 2}, {1, 2}};
+
+    for (int p = 0; p < 3; p++) {
+        int i = pairs[p][0];
+        int j = pairs[p][1];
+
+        double** m = doMatrix(2, 2);
+        m[0][0] = coeffs[i][0]; m[0][1] = coeffs[i][1]; m[0][2] = coeffs[i][2];
+        m[1][0] = coeffs[j][0]; m[1][1] = coeffs[j][1]; m[1][2] = coeffs[j][2];
+
+        int rank = 0;
+        makeTriangleForm(m, 2, 2, rank);
+
+        bool Solution_flag = false;
+        for (int k = rank; k < 2; k++) {
+            if (fabs(m[k][2]) > EPSILON) Solution_flag = true;
+        }
+
+        if (Solution_flag || rank < 2) {
+            out << "Degenerate case" << endl;
+            cleanMatrix(m, 2);
+            return;
+        }
+
+        prs[p][0] = m[0][2];
+        prs[p][1] = m[1][2];
+        cleanMatrix(m, 2);
+    }
+    double area = 0.5 * fabs(
+        prs[0][0] * (prs[1][1] - prs[2][1]) +
+        prs[1][0] * (prs[2][1] - prs[0][1]) +
+        prs[2][0] * (prs[0][1] - prs[1][1])
+    );
+
+    out << "Area = " << fixed << setprecision(3) << area << endl;
+
+    ofstream script("triangle.py");
+    script << "import matplotlib.pyplot as plt\n"
+           << "import numpy as np\n"
+           << "\n\n"
+           << "pts = [\n"
+           << "    (" << prs[0][0] << ", " << prs[0][1] << "),\n"
+           << "    (" << prs[1][0] << ", " << prs[1][1] << "),\n"
+           << "    (" << prs[2][0] << ", " << prs[2][1] << ")\n"
+           << "]\n"
+           << "\n"
+           << "xs = [p[0] for p in pts] + [pts[0][0]]\n"
+           << "ys = [p[1] for p in pts] + [pts[0][1]]\n"
+           << "\n"
+           << "plt.plot(xs, ys, 'b-')\n"
+           << "plt.fill(xs, ys, alpha=0.2, color='blue')\n"
+           << "\n"
+           << "labels = ['P1', 'P2', 'P3']\n"
+           << "for i, (px, py) in enumerate(pts):\n"
+           << "    plt.plot(px, py, 'bo', markersize=6)\n"
+           << "    plt.annotate(\n"
+           << "        f'{labels[i]} ({px:.3f}, {py:.3f})',\n"
+           << "        (px, py),\n"
+           << "        textcoords='offset points',\n"
+           << "        xytext=(8, 8)\n"
+           << "    )\n"
+           << "\n"
+           << "x_min, x_max = min(xs) - 5, max(xs) + 5\n"
+           << "x = np.linspace(x_min, x_max, 400)\n"
+           << "plt.xlim(x_min, x_max)\n"
+           << "\n";
+
+    for (int i = 0; i < 3; i++) {
+        double a = coeffs[i][0], b = coeffs[i][1], c = coeffs[i][2];
+
+        script << "if abs(" << b << ") > 1e-9:\n"
+               << "    plt.plot(\n"
+               << "        x, (" << c << " - " << a << " * x) / " << b << ",\n"
+               << "        '--', alpha=0.5, label='" << a << "x + " << b << "y = " << c << "'\n"
+               << "    )\n"
+               << "else:\n"
+               << "    plt.axvline(x=" << c / a << ", linestyle='--', alpha=0.5)\n"
+               << "\n";
+    }
+
+    script << "plt.axhline(0, color='black', linewidth=0.5)\n"
+           << "plt.axvline(0, color='black', linewidth=0.5)\n"
+           << "plt.grid(True, alpha=0.3)\n"
+           << "plt.legend()\n"
+           << "plt.title('Triangle  |  Area = " << fixed << setprecision(3) << area << "')\n"
+           << "plt.tight_layout()\n"
+           << "plt.show()\n";
+    script.close();
+
+    system("venv/bin/python triangle.py");
 }
 
 int main() {
@@ -481,6 +600,9 @@ int main() {
 
         } else if (choice == 3) {
             taskB(cout);
+
+        } else if (choice == 4) {
+            taskC(cout);
 
         } else if (choice != 0) {
             cout << "Invalid choice" << endl;
