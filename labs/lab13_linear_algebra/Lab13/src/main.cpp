@@ -1,3 +1,7 @@
+/*
+В CMakeLists.txt поменять основной файл на main.cpp с main_obaz.cpp
+*/
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
