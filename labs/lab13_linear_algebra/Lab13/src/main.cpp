@@ -1,7 +1,3 @@
-/*
-В CMakeLists.txt поменять основной файл на main.cpp с main_obaz.cpp
-*/
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -30,7 +26,13 @@ void cleanMatrix(double** matrix, int lines) {
 void printMatrix(double** matrix, int lines, int unk_p, ostream& out) {
     for (int i = 0; i < lines; i++) {
         for (int j = 0; j <= unk_p; j++) {
-            out << fixed << setw(8) << setprecision(3) << matrix[i][j] << " ";
+            double val = matrix[i][j];
+
+            if (fabs(val) < EPSILON) {
+                val = 0;
+            }
+
+            out << fixed << setw(8) << setprecision(3) << val << " ";
         }
         out << endl;
     }
@@ -103,16 +105,35 @@ void makeTriangleForm(double** matrix, int lines, int unk_p, int& rank) {
         double val = matrix[row][col];
         for (int j = 0; j <= unk_p; j++) matrix[row][j] /= val;
 
-        for (int i = 0; i < lines; i++) {
-            if (i != row) {
-                double factor = matrix[i][col];
+        for (int i = row + 1; i < lines; i++) {
+            double factor = matrix[i][col];
+            for (int j = 0; j <= unk_p; j++) {
+                matrix[i][j] -= matrix[row][j] * factor;
+            }
+        }
+        row++;
+        rank++;
+    }
+}
+
+void makeDiag(double** matrix, int lines, int unk_p) {
+    for (int row = lines - 1; row >= 0; row--) {
+        int pivot_col = -1;
+        for (int col = 0; col < unk_p; col++) {
+            if (fabs(matrix[row][col]) > EPSILON) {
+                pivot_col = col;
+                break;
+            }
+        }
+
+        if (pivot_col != -1) {
+            for (int i = 0; i < row; i++) {
+                double factor = matrix[i][pivot_col];
                 for (int j = 0; j <= unk_p; j++) {
                     matrix[i][j] -= matrix[row][j] * factor;
                 }
             }
         }
-        row++;
-        rank++;
     }
 }
 
@@ -143,6 +164,8 @@ void solutionUniq(double** matrix, int lines, int unk_p, ostream& out) {
         delete[] copy;
         return;
     }
+
+    makeDiag(copy, lines, unk_p);
 
     for (int i = 0; i < unk_p; i++) {
         out << "x" << i + 1 << " = " << fixed << setprecision(3) << copy[i][unk_p] << endl;
@@ -198,6 +221,7 @@ void solutionFull(double** matrix, int lines, int unk_p, ostream& out) {
         }
     }
     out << endl;
+    makeDiag(copy, lines, unk_p);
 
     double* solution = new double[unk_p]();
     for (int i = 0; i < rank; i++) {
@@ -265,6 +289,8 @@ void taskA(ostream& out) {
         cleanMatrix(matrix, 2);
         return;
     }
+
+    makeDiag(matrix, 2, 2);
 
     double x = matrix[0][2];
     double y = matrix[1][2];
@@ -352,44 +378,49 @@ void taskB(ostream& out) {
 
     if (isParallel) {
         out << "Inconsistent system" << endl;
-    } else if (rank < 3) {
-        bool* isPivot  = new bool[3]();
-        int*  pivotCol = new int[rank];
-        int r = 0;
-        for (int col = 0; col < 3 && r < rank; col++) {
-            if (fabs(matrix[r][col]) > EPSILON) {
-                isPivot[col] = true;
-                pivotCol[r] = col;
-                r++;
-            }
-        }
 
-        char varNames[] = {'x', 'y', 'z'};
-        bool first = true;
-        for (int j = 0; j < 3; j++) {
-            if (!isPivot[j]) {
-                if (!first) out << ", ";
-                out << varNames[j] << " is free";
-                first = false;
-            }
-        }
-        out << endl;
-
-        double sol[3] = {0, 0, 0};
-        for (int i = 0; i < rank; i++)
-            sol[pivotCol[i]] = matrix[i][3];
-
-        out << "x = " << fixed << setprecision(3) << sol[0] << ", "
-            << "y = " << fixed << setprecision(3) << sol[1] << ", "
-            << "z = " << fixed << setprecision(3) << sol[2] << endl;
-
-        delete[] isPivot;
-        delete[] pivotCol;
     } else {
-        out << "Intersection point:" << endl;
-        out << "x = " << fixed << setprecision(3) << matrix[0][3] << endl;
-        out << "y = " << fixed << setprecision(3) << matrix[1][3] << endl;
-        out << "z = " << fixed << setprecision(3) << matrix[2][3] << endl;
+        makeDiag(matrix, 3, 3);
+
+        if (rank < 3) {
+            bool* isPivot  = new bool[3]();
+            int*  pivotCol = new int[rank];
+            int r = 0;
+            for (int col = 0; col < 3 && r < rank; col++) {
+                if (fabs(matrix[r][col]) > EPSILON) {
+                    isPivot[col] = true;
+                    pivotCol[r] = col;
+                    r++;
+                }
+            }
+
+            char varNames[] = {'x', 'y', 'z'};
+            bool first = true;
+            for (int j = 0; j < 3; j++) {
+                if (!isPivot[j]) {
+                    if (!first) out << ", ";
+                    out << varNames[j] << " is free";
+                    first = false;
+                }
+            }
+            out << endl;
+
+            double sol[3] = {0, 0, 0};
+            for (int i = 0; i < rank; i++)
+                sol[pivotCol[i]] = matrix[i][3];
+
+            out << "x = " << fixed << setprecision(3) << sol[0] << ", "
+                << "y = " << fixed << setprecision(3) << sol[1] << ", "
+                << "z = " << fixed << setprecision(3) << sol[2] << endl;
+
+            delete[] isPivot;
+            delete[] pivotCol;
+        } else {
+            out << "Intersection point:" << endl;
+            out << "x = " << fixed << setprecision(3) << matrix[0][3] << endl;
+            out << "y = " << fixed << setprecision(3) << matrix[1][3] << endl;
+            out << "z = " << fixed << setprecision(3) << matrix[2][3] << endl;
+        }
     }
     cleanMatrix(matrix, 3);
 }
@@ -444,6 +475,8 @@ void taskC(ostream& out) {
             cleanMatrix(m, 2);
             return;
         }
+
+        makeDiag(m, 2, 2);
 
         prs[p][0] = m[0][2];
         prs[p][1] = m[1][2];
