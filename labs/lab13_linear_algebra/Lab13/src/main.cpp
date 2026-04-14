@@ -296,45 +296,6 @@ void taskA(ostream& out) {
     double y = matrix[1][2];
     out << "Solution: x -> " << x << "; y -> " << y << endl;
 
-    ofstream script("lines.py");
-    script << "import matplotlib.pyplot as plt\n"
-           << "import numpy as np\n"
-           << "\n\n"
-           << "x_c, y_c = " << x << ", " << y << "\n"
-           << "x = np.linspace(x_c - 10, x_c + 10, 400)\n"
-           << "\n"
-           << "plt.xlim(x_c - 10, x_c + 10)\n"
-           << "plt.ylim(y_c - 10, y_c + 10)\n"
-           << "\n"
-           << "if abs(" << b1 << ") > 1e-9:\n"
-           << "    plt.plot(x, (" << c1 << " - " << a1 << " * x) / " << b1
-           << ", 'b-', label='" << a1 << "x + " << b1 << "y = " << c1 << "')\n"
-           << "else:\n"
-           << "    plt.axvline(x=" << c1 / a1 << ", color='b', label='x = " << c1 / a1 << "')\n"
-           << "\n"
-           << "if abs(" << b2 << ") > 1e-9:\n"
-           << "    plt.plot(x, (" << c2 << " - " << a2 << " * x) / " << b2
-           << ", 'r-', label='" << a2 << "x + " << b2 << "y = " << c2 << "')\n"
-           << "else:\n"
-           << "    plt.axvline(x=" << c2 / a2 << ", color='r', label='x = " << c2 / a2 << "')\n"
-           << "\n"
-           << "plt.plot(x_c, y_c, 'go', markersize=8, label=f'({x_c:.3f}, {y_c:.3f})')\n"
-           << "plt.annotate(\n"
-           << "    f'({x_c:.3f}, {y_c:.3f})',\n"
-           << "    (x_c, y_c),\n"
-           << "    textcoords='offset points',\n"
-           << "    xytext=(8, 8)\n"
-           << ")\n"
-           << "\n"
-           << "plt.axhline(0, color='black', linewidth=0.5)\n"
-           << "plt.axvline(0, color='black', linewidth=0.5)\n"
-           << "plt.grid(True, alpha=0.3)\n"
-           << "plt.legend()\n"
-           << "plt.title('First task')\n"
-           << "plt.tight_layout()\n"
-           << "plt.show()\n";
-    script.close();
-
     system("venv/bin/python lines.py");
 
     cleanMatrix(matrix, 2);
@@ -490,58 +451,9 @@ void taskC(ostream& out) {
 
     out << "Area = " << fixed << setprecision(3) << area << endl;
 
-    ofstream script("triangle.py");
-    script << "import matplotlib.pyplot as plt\n"
-           << "import numpy as np\n"
-           << "\n\n"
-           << "pts = [\n"
-           << "    (" << prs[0][0] << ", " << prs[0][1] << "),\n"
-           << "    (" << prs[1][0] << ", " << prs[1][1] << "),\n"
-           << "    (" << prs[2][0] << ", " << prs[2][1] << ")\n"
-           << "]\n"
-           << "\n"
-           << "xs = [p[0] for p in pts] + [pts[0][0]]\n"
-           << "ys = [p[1] for p in pts] + [pts[0][1]]\n"
-           << "\n"
-           << "plt.plot(xs, ys, 'b-')\n"
-           << "plt.fill(xs, ys, alpha=0.2, color='blue')\n"
-           << "\n"
-           << "labels = ['P1', 'P2', 'P3']\n"
-           << "for i, (px, py) in enumerate(pts):\n"
-           << "    plt.plot(px, py, 'bo', markersize=6)\n"
-           << "    plt.annotate(\n"
-           << "        f'{labels[i]} ({px:.3f}, {py:.3f})',\n"
-           << "        (px, py),\n"
-           << "        textcoords='offset points',\n"
-           << "        xytext=(8, 8)\n"
-           << "    )\n"
-           << "\n"
-           << "x_min, x_max = min(xs) - 5, max(xs) + 5\n"
-           << "x = np.linspace(x_min, x_max, 400)\n"
-           << "plt.xlim(x_min, x_max)\n"
-           << "\n";
-
     for (int i = 0; i < 3; i++) {
         double a = coeffs[i][0], b = coeffs[i][1], c = coeffs[i][2];
-
-        script << "if abs(" << b << ") > 1e-9:\n"
-               << "    plt.plot(\n"
-               << "        x, (" << c << " - " << a << " * x) / " << b << ",\n"
-               << "        '--', alpha=0.5, label='" << a << "x + " << b << "y = " << c << "'\n"
-               << "    )\n"
-               << "else:\n"
-               << "    plt.axvline(x=" << c / a << ", linestyle='--', alpha=0.5)\n"
-               << "\n";
     }
-
-    script << "plt.axhline(0, color='black', linewidth=0.5)\n"
-           << "plt.axvline(0, color='black', linewidth=0.5)\n"
-           << "plt.grid(True, alpha=0.3)\n"
-           << "plt.legend()\n"
-           << "plt.title('Triangle  |  Area = " << fixed << setprecision(3) << area << "')\n"
-           << "plt.tight_layout()\n"
-           << "plt.show()\n";
-    script.close();
 
     system("venv/bin/python triangle.py");
 }
