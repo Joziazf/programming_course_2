@@ -451,10 +451,6 @@ void taskC(ostream& out) {
 
     out << "Area = " << fixed << setprecision(3) << area << endl;
 
-    for (int i = 0; i < 3; i++) {
-        double a = coeffs[i][0], b = coeffs[i][1], c = coeffs[i][2];
-    }
-
     system("venv/bin/python triangle.py");
 }
 
